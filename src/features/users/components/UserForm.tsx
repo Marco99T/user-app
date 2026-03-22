@@ -1,28 +1,27 @@
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
-import { updateUser, createUser } from "../../auth/services/userService"
-import type { LoginUser } from "../../auth/types/userTypes"
+import { createUser, updateUser } from "../services/userService"
+import type { User } from "../types/userTypes"
 
 interface Props {
     refreshUsers: () => void
-    editingUser: LoginUser | null
-    setEditingUser: (user: LoginUser | null) => void
+    editingUser: User | null
+    setEditingUser: (user: User | null) => void
 }
 
 const UserForm = ({ refreshUsers, editingUser, setEditingUser }: Props) => {
-
-    const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [role, setRole] = useState("USER")
+    const [enabled, setEnabled] = useState(true)
 
     useEffect(() => {
         if (editingUser) {
-            setUsername(editingUser.username)
             setEmail(editingUser.email)
+            setPassword("")
             setRole(editingUser.role)
+            setEnabled(editingUser.enabled)
         }
-
     }, [editingUser])
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -30,23 +29,23 @@ const UserForm = ({ refreshUsers, editingUser, setEditingUser }: Props) => {
         try {
             if (editingUser) {
                 await updateUser(editingUser.id, {
-                    username,
                     email,
-                    password
+                    password: password || undefined,
+                    role,
+                    enabled
                 })
                 toast.success("Usuario actualizado")
                 setEditingUser(null)
             } else {
                 await createUser({
-                    username,
                     email,
-                    password,
+                    password: password || undefined,
                     role
                 })
                 toast.success("Usuario creado");
             }
 
-            setUsername("")
+            // RESET
             setEmail("")
             setPassword("")
             setRole("USER")
@@ -59,15 +58,8 @@ const UserForm = ({ refreshUsers, editingUser, setEditingUser }: Props) => {
 
 
     return (
-
         <form onSubmit={handleSubmit} className="bg-slate-800 p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-4">Crear usuario</h2>
-            <input
-                className="w-full mb-2 p-2 rounded text-black"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-            />
             <input
                 className="w-full mb-2 p-2 rounded text-black"
                 placeholder="Email"
@@ -77,7 +69,7 @@ const UserForm = ({ refreshUsers, editingUser, setEditingUser }: Props) => {
             <input
                 className="w-full mb-2 p-2 rounded text-black"
                 type="password"
-                placeholder="Password"
+                placeholder={editingUser ? "Nueva contraseña (opcional)" : "Password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
             />
@@ -88,6 +80,14 @@ const UserForm = ({ refreshUsers, editingUser, setEditingUser }: Props) => {
             >
                 <option value="USER">USER</option>
                 <option value="ADMIN">ADMIN</option>
+            </select>
+            <select
+                className="w-full mb-2 p-2 rounded text-black"
+                value={enabled ? 1 : 0}
+                onChange={(e) => setEnabled(Number(e.target.value) === 1)}
+            >
+                <option value={1}>Enabled</option>
+                <option value={0}>Disabled</option>
             </select>
             <div className="flex gap-2">
 
