@@ -1,22 +1,21 @@
 import api from "../../../shared/api/axiosConfig"
-import type { CreateUserRequest, LoginUser, UserUpdate } from "../../auth/types/userTypes"
+import { type CreateUserRequest, type ResponseUser, type UpdateUserRequest } from "../types/userTypes"
 
-
-export const getUsers = async (): Promise<LoginUser[]> => {
-    const response = await api.get<LoginUser[]>("/auth/users")
+export const getUsers = async (): Promise<ResponseUser[]> => {
+    const response = await api.get<ResponseUser[]>("/users")
     return response.data
 }
 
-export const createUser = async (user: Omit<CreateUserRequest, "id">) => {
-    const response = await api.post("/auth/users/user", user);
-    return response.data;
+export const createUser = async (user: CreateUserRequest): Promise<ResponseUser> => {
+    const response = await api.post<ResponseUser>("/users", user)
+    return response.data
 }
 
-export const deleteUser = async (id: number) => {
-    await api.delete(`/auth/users/${id}`);
+export const deleteUser = async (id: number): Promise<void> => {
+    await api.delete<void>(`/users/${id}`)
 }
 
-export const updateUser = async (id: number, user: Partial<UserUpdate>) => {
-    const response = await api.put(`/auth/users/${id}`, user)
+export const updateUser = async (id: number, user: Partial<UpdateUserRequest>): Promise<ResponseUser> => {
+    const response = await api.patch<ResponseUser>(`/users/${id}`, user)
     return response.data
 }
