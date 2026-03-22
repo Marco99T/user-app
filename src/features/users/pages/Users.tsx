@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react"
-import type { LoginUser } from "../../auth/types/userTypes"
 import toast, { } from "react-hot-toast";
 import Loader from "../../../shared/components/Loader"
-import { deleteUser, getUsers } from "../../auth/services/userService";
 import DashboardLayout from "../../../layout/DashboardLayout";
 import UserForm from "../components/UserForm";
+import { deleteUser, getUsers } from "../services/userService";
+import type { ResponseUser, User } from "../types/userTypes";
 
 
 const Users = () => {
-    const [users, setUsers] = useState<LoginUser[]>([])
-    const [editingUser, setEditingUser] = useState<LoginUser | null>(null)
+    const [users, setUsers] = useState<ResponseUser[]>([])
+    const [editingUser, setEditingUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState("")
     const [currentPage, setCurrentPage] = useState(1)
@@ -39,7 +39,7 @@ const Users = () => {
     }
 
     const filteredUsers = users.filter((user) =>
-        user.username.toLowerCase().includes(search.toLowerCase())
+        user.email.toLowerCase().includes(search.toLowerCase())
     )
 
     const indexOfLastUser = currentPage * usersPerPage
@@ -75,20 +75,20 @@ const Users = () => {
                                 <thead className="border-b border-slate-600 sticky top-0 bg-slate-800">
                                     <tr>
                                         <th className="p-2">ID</th>
-                                        <th className="p-2">Username</th>
                                         <th className="p-2">Email</th>
                                         <th className="p-2">Role</th>
+                                        <th className="p-2">Enabled</th>
+                                        <th className="p-2">CreatedAt</th>
+                                        <th className="p-2">UpdatedAt</th>
                                         <th className="p-2">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {currentUsers
-                                        // .filter((user) => user.role !== "ADMIN")
-
+                                        .filter((user) => user.role !== "ADMIN")
                                         .map((user) => (
                                             <tr key={user.id} className="border-b border-slate-700">
                                                 <td className="p-2">{user.id}</td>
-                                                <td className="p-2">{user.username}</td>
                                                 <td className="p-2">{user.email}</td>
                                                 <td className="p-2">
                                                     <span
@@ -100,19 +100,16 @@ const Users = () => {
                                                         {user.role}
                                                     </span>
                                                 </td>
+                                                <td className="p-2">{user.enabled ? "TRUE" : "FALSE"}</td>
+                                                <td className="p-2">{user.createdAt}</td>
+                                                <td className="p-2">{user.updatedAt}</td>
                                                 <td className="p-2">
                                                     <div className="flex gap-2">
-                                                        <button
-                                                            onClick={() => setEditingUser(user)}
-                                                            className="bg-yellow-500 px-3 py-1 rounded"
-                                                        >
+                                                        <button onClick={() => setEditingUser(user)} className="bg-yellow-500 px-3 py-1 rounded">
                                                             Editar
                                                         </button>
 
-                                                        <button
-                                                            onClick={() => handleDelete(user.id)}
-                                                            className="bg-red-500 px-3 py-1 rounded"
-                                                        >
+                                                        <button onClick={() => handleDelete(user.id)} className="bg-red-500 px-3 py-1 rounded">
                                                             Eliminar
                                                         </button>
                                                     </div>
