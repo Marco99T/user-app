@@ -85,7 +85,6 @@ const Users = () => {
                                 </thead>
                                 <tbody>
                                     {currentUsers
-                                        .filter((user) => user.role !== "ADMIN")
                                         .map((user) => (
                                             <tr key={user.id} className="border-b border-slate-700">
                                                 <td className="p-2">{user.id}</td>
